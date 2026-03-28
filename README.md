@@ -1,53 +1,115 @@
 # AI Vision Assistant
 
-An intelligent, real-time computer vision assistant designed to perceive and interact with its environment. It utilizes multiple machine learning models to detect objects, recognize faces, understand hand gestures, and provide spoken feedback about the scene.
+An intelligent real-time computer vision system that integrates object detection, face recognition, gesture control, voice feedback, and environment analysis into a single application.
 
 ## Features
 
-- **Real-Time Object Detection**: Uses YOLOv8 to identify and track objects, estimating their distance (e.g., "nearby", "far").
-- **Voice Feedback**: Integrates `pyttsx3` for text-to-speech scene descriptions and `speech_recognition` to listen for future capabilities.
-- **Hand Gesture Controls**: Uses MediaPipe to pause (`closed fist`) or resume (`open hand`) the video feed.
-- **Face Recognition**: Automatically identifies known faces from the `dataset/faces/` directory using dlib and the `face_recognition` library.
-- **Crowd & Environment Analysis**: Logs detections to `vision_log.csv` and uses a custom Random Forest classifier (`crowd_model.pkl`) to determine if a scene is "Crowded". Categorizes the environment as "Indoor" or "Outdoor".
-- **Danger Alerts**: Automatically and verbally warns the user if hazardous items (like knives or scissors) are detected.
+- **Object Detection (YOLOv8)**  
+  Detects multiple objects in real time. Identifies people, furniture, vehicles, and more.
+- **Face Recognition**  
+  Recognizes known faces from a dataset. Announces detected individuals using voice.
+- **Gesture Control**  
+  Open hand: Resume system. Closed hand: Pause system.
+- **Voice Feedback**  
+  Provides real-time spoken updates. Describes the scene periodically.
+- **Voice Input (Speech Recognition)**  
+  Captures user input through microphone.
+- **Danger Detection**  
+  Alerts when dangerous objects such as knife, scissors, or fire are detected.
+- **Environment Classification**  
+  Determines whether the scene is indoor or outdoor.
+- **Crowd Detection**  
+  Predicts whether the environment is crowded using a trained model.
+- **Logging System**  
+  Stores detection data in CSV format for analysis.
+- **Performance Monitoring**  
+  Displays FPS and performance warnings.
 
-## Requirements
+## Technologies Used
 
-Ensure you have Python 3.9+ installed and a working webcam.
+- Python
+- OpenCV
+- YOLOv8 (Ultralytics)
+- MediaPipe
+- Face Recognition
+- SpeechRecognition
+- pyttsx3
+- Scikit-learn (joblib)
 
-Install the required dependencies:
-```bash
-pip install opencv-python pyttsx3 mediapipe SpeechRecognition face-recognition ultralytics pandas scikit-learn joblib
+## Project Structure
+
+```text
+project/
+├── main.py
+├── vision_log.csv
+├── crowd_model.pkl
+├── yolov8n.pt
+└── dataset/
+    └── faces/
+        ├── person1.jpg
+        └── person2.jpg
 ```
 
-*(Note: `face_recognition` requires `dlib`. Pre-built wheels for dlib can be difficult to set up on Windows without C++ build tools, but the included pip wheel makes it easier).*
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/aswindev-tech/ai-vision.git
+   cd ai-vision
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pip install opencv-python pyttsx3 mediapipe speechrecognition face-recognition ultralytics joblib pandas scikit-learn
+   ```
+
+3. **Ensure required files are available:**
+   - `yolov8n.pt`
+   - `crowd_model.pkl`
+
+4. **Add face images to:**
+   - `dataset/faces/`
 
 ## Usage
 
-### 1. Running the Vision Assistant
-
-To start the real-time AI assistant, simply run:
+Run the application:
 ```bash
 python main.py
 ```
-- Show an **open hand** to the camera to ensure the assistant is running.
-- Show a **closed fist** to pause the detection feed.
-- Press **Esc** to exit.
 
-### 2. Training the Crowd Model
+## Controls
 
-As the assistant runs, it logs data into `vision_log.csv`. You can retrain the custom "Crowd Detection" model on your latest logged data by running:
+| Action | Method |
+| :--- | :--- |
+| **Resume System** | Open hand |
+| **Pause System** | Closed hand |
+| **Exit** | Press ESC |
 
-```bash
-python training.py
-```
-This script trains a Random Forest Classifier to distinguish crowded from non-crowded scenes based on the number of people and unique objects detected. It outputs `.pkl` model file which is then loaded automatically by `main.py`.
+## Output
 
-## Directory Structure
+Live video feed with:
+- Object detection labels
+- Distance estimation
+- Environment classification
+- FPS display
+- Voice announcements
+- Log file: `vision_log.csv`
 
-- `main.py`: The core application script.
-- `training.py`: Script to train the Random Forest crowd-detection classifier.
-- `dataset/faces/`: Add `.jpg` or `.png` face images here. The file name (e.g., `dulquer.jpg`) is identified as the person's name.
-- `crowd_model.pkl`: The trained crowd detection model.
-- `vision_log.csv`: Logged metrics of objects seen during runtime.
-- `yolov8n.pt`: (Auto-downloaded) The YOLO weights for object detection.
+## Notes
+
+- Requires a working webcam and microphone.
+- Performance depends on system hardware.
+- Face recognition accuracy depends on dataset quality.
+- Crowd model must be pre-trained.
+
+## Future Improvements
+
+- Mobile application support
+- Improved voice command system
+- Cloud-based logging
+- Multi-camera support
+- Enhanced gesture recognition
+
+## License
+
+*(Add License Here)*
