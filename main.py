@@ -191,6 +191,22 @@ while True:
     fps = 1/(curr_time-prev_time) if prev_time != 0 else 0
     prev_time = curr_time
 
+    # Start listening continuously in the background
+    listen()
+
+    # Process voice commands
+    if voice_result["query"]:
+        cmd = voice_result["query"]
+        voice_result["query"] = ""  # Reset
+        if "pause" in cmd or "stop" in cmd:
+            paused = True
+            speak("Paused via voice")
+        elif "resume" in cmd or "start" in cmd:
+            paused = False
+            speak("Resumed via voice")
+        elif "what do you see" in cmd:
+            last_scene_time = 0  # Force scene description on next tick
+
     gesture = detect_gesture(frame)
 
     if gesture != "NONE" and gesture != last_gesture_state:
@@ -251,8 +267,8 @@ while True:
         cv2.putText(frame, f"Top: {top_object}", (10,190),
                     cv2.FONT_HERSHEY_SIMPLEX,0.6,(200,255,200),2)
 
-    # Danger detection
-    danger_objects = ["knife","scissors","fire"]
+    # Danger detection (Removed 'fire' as it is not in default YOLOv8 COCO dataset)
+    danger_objects = ["knife","scissors"]
     if any(obj in detected_objects for obj in danger_objects):
         cv2.putText(frame, "DANGER!", (300,40),
                     cv2.FONT_HERSHEY_SIMPLEX,0.8,(0,0,255),2)
@@ -274,15 +290,20 @@ while True:
     # Face recognition
     if now - last_face_time > 5 and known_encodings:
         last_face_time = now
-        small = cv2.resize(frame, (0,0), fx=0.5, fy=0.5)
-        rgb_small = cv2.cvtColor(small, cv2.COLOR_BGR2RGB)
-        face_locs = face_recognition.face_locations(rgb_small)
-        face_encs = face_recognition.face_encodings(rgb_small, face_locs)
-        for enc in face_encs:
-            matches = face_recognition.compare_faces(known_encodings, enc)
-            if True in matches:
-                name = known_names[matches.index(True)]
-                speak(f"I recognize {name}")
+        
+        def _recognize_faces_bg(f):
+            small = cv2.resize(f, (0,0), fx=0.5, fy=0.5)
+            rgb_small = cv2.cvtColor(small, cv2.COLOR_BGR2RGB)
+            face_locs = face_recognition.face_locations(rgb_small)
+            face_encs = face_recognition.face_encodings(rgb_small, face_locs)
+            for enc in face_encs:
+                matches = face_recognition.compare_faces(known_encodings, enc)
+                if True in matches:
+                    name = known_names[matches.index(True)]
+                    speak(f"I recognize {name}")
+
+        # Run face recognition in the background to prevent video freezing
+        threading.Thread(target=_recognize_faces_bg, args=(frame.copy(),), daemon=True).start()
 
     # Logging
     if total_objects > 0 and now - last_log_time > 5:

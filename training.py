@@ -17,7 +17,8 @@ y = df["crowded"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 model = RandomForestClassifier()
-model.fit(X_train, y_train)
+# Use .values to avoid feature name warnings during prediction
+model.fit(X_train.values, y_train)
 
 print("Model trained successfully!")
 joblib.dump(model, "crowd_model.pkl")
