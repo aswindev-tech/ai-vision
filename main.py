@@ -191,13 +191,13 @@ while True:
     fps = 1/(curr_time-prev_time) if prev_time != 0 else 0
     prev_time = curr_time
 
-    # Start listening continuously in the background
+    
     listen()
 
-    # Process voice commands
+    
     if voice_result["query"]:
         cmd = voice_result["query"]
-        voice_result["query"] = ""  # Reset
+        voice_result["query"] = ""  
         if "pause" in cmd or "stop" in cmd:
             paused = True
             speak("Paused via voice")
@@ -205,7 +205,7 @@ while True:
             paused = False
             speak("Resumed via voice")
         elif "what do you see" in cmd:
-            last_scene_time = 0  # Force scene description on next tick
+            last_scene_time = 0  
 
     gesture = detect_gesture(frame)
 
@@ -267,7 +267,7 @@ while True:
         cv2.putText(frame, f"Top: {top_object}", (10,190),
                     cv2.FONT_HERSHEY_SIMPLEX,0.6,(200,255,200),2)
 
-    # Danger detection (Removed 'fire' as it is not in default YOLOv8 COCO dataset)
+    
     danger_objects = ["knife","scissors"]
     if any(obj in detected_objects for obj in danger_objects):
         cv2.putText(frame, "DANGER!", (300,40),
@@ -282,12 +282,12 @@ while True:
     env = "Indoor" if furniture_count > vehicle_count else "Outdoor"
     cv2.putText(frame,f"Env: {env}",(10,130),0,0.7,(255,255,0),2)
 
-    # Voice scene description
+    
     if now - last_scene_time > 10 and total_objects > 0:
         last_scene_time = now
         speak(f"I see {person_count} persons and {unique_objects} unique objects. Environment is {env}")
 
-    # Face recognition
+    
     if now - last_face_time > 5 and known_encodings:
         last_face_time = now
         
@@ -302,10 +302,10 @@ while True:
                     name = known_names[matches.index(True)]
                     speak(f"I recognize {name}")
 
-        # Run face recognition in the background to prevent video freezing
+        
         threading.Thread(target=_recognize_faces_bg, args=(frame.copy(),), daemon=True).start()
 
-    # Logging
+    
     if total_objects > 0 and now - last_log_time > 5:
         last_log_time = now
         with open(LOG_FILE,'a',newline='') as f:
@@ -320,7 +320,7 @@ while True:
                 hour
             ])
 
-    # FPS warning
+    
     if fps < 10:
         cv2.putText(frame, "LOW PERFORMANCE", (300,70),
                     cv2.FONT_HERSHEY_SIMPLEX,0.6,(0,0,255),2)
